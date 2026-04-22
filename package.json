@@ -5,9 +5,9 @@
   "scripts": {
     "build": "next build",
     "build:webpack": "next build --webpack",
-    "dev": "WATCHPACK_POLLING=false next dev",
+    "dev": "WATCHPACK_POLLING=false PORT=${PORT:-4000} next dev",
     "dev:server": "./scripts/dev-server.sh",
-    "dev:webpack": "WATCHPACK_POLLING=false next dev --webpack",
+    "dev:webpack": "WATCHPACK_POLLING=false PORT=${PORT:-4000} next dev --webpack",
     "postinstall": "prisma generate",
     "lint": "biome check src",
     "lint:fix": "biome check src --apply",
