@@ -6,6 +6,7 @@
     "build": "next build",
     "build:webpack": "next build --webpack",
     "dev": "WATCHPACK_POLLING=false next dev",
+    "dev:server": "./scripts/dev-server.sh",
     "dev:webpack": "WATCHPACK_POLLING=false next dev --webpack",
     "postinstall": "prisma generate",
     "lint": "biome check src",
