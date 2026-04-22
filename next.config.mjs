@@ -7,7 +7,7 @@
 /** @type {import("next").NextConfig} */
 const config = {
 	reactStrictMode: true,
-	allowedDevOrigins: ["10.0.0.217"],
+		allowedDevOrigins: ["10.0.0.217", "47.113.195.229"],
 	// https://nextjs.org/docs/advanced-features/output-file-tracing
 	output: "standalone",
 	/**

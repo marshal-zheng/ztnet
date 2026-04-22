@@ -290,8 +290,11 @@ export const get_controller_networks = async (
 		}
 		return await getData<ZTControllerListNetworks>(addr, headers);
 	} catch (error) {
+		if (error instanceof APIError) {
+			throw error;
+		}
 		const prefix = isCentral ? "[CENTRAL] " : "";
-		const message = `${prefix} ${error} (get_controller_networks)`;
+		const message = `${prefix}${error instanceof Error ? error.message : String(error)} (get_controller_networks)`;
 		throw new APIError(message, axios.isAxiosError(error) ? error : undefined);
 	}
 };

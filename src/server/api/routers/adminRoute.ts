@@ -3,7 +3,7 @@ import { z } from "zod";
 import * as ztController from "~/utils/ztApi";
 import { mailTemplateMap, sendMailWithTemplate } from "~/utils/mail";
 import { type GlobalOptions, Role } from "@prisma/client";
-import { throwError } from "~/server/helpers/errorHandler";
+import { APIError, throwError } from "~/server/helpers/errorHandler";
 import type { ZTControllerNodeStatus } from "~/types/ztController";
 import type { NetworkAndMemberResponse } from "~/types/network";
 import { execSync } from "node:child_process";
@@ -677,8 +677,24 @@ export const adminRouter = createTRPCRouter({
 				}
 
 				return unlinkedNetworks;
-			} catch (_error) {
-				return throwError("Failed to fetch unlinked networks", _error);
+			} catch (error) {
+				if (error instanceof APIError && error.status === 401) {
+					return throwError(
+						"Failed to fetch unlinked networks: remote ZeroTier controller rejected the token. Check ZT_SECRET or the controller credentials.",
+						"UNAUTHORIZED",
+						error,
+					);
+				}
+
+				if (error instanceof Error) {
+					return throwError(
+						`Failed to fetch unlinked networks: ${error.message}`,
+						"INTERNAL_SERVER_ERROR",
+						error,
+					);
+				}
+
+				return throwError("Failed to fetch unlinked networks", "INTERNAL_SERVER_ERROR");
 			}
 		}),
 	assignNetworkToUser: adminRoleProtectedRoute
