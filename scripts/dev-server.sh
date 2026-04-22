@@ -18,6 +18,7 @@ POSTGRES_DB="${POSTGRES_DB:-ztnet}"
 MIGRATE_POSTGRES_DB="${MIGRATE_POSTGRES_DB:-shaddow_ztnet}"
 ZT_ADDR="${ZT_ADDR:-http://127.0.0.1:9994}"
 ZT_CONTAINER_NAME="${ZT_CONTAINER_NAME:-myztplanet}"
+APP_PORT="${APP_PORT:-${PORT:-4000}}"
 PUBLIC_HOST="${PUBLIC_HOST:-}"
 NEXTAUTH_URL="${NEXTAUTH_URL:-}"
 NEXTAUTH_SECRET="${NEXTAUTH_SECRET:-}"
@@ -134,9 +135,9 @@ ensure_env_file
 
 if [ -z "$NEXTAUTH_URL" ]; then
   if [ -n "$PUBLIC_HOST" ]; then
-    NEXTAUTH_URL="http://${PUBLIC_HOST}:3000"
+    NEXTAUTH_URL="http://${PUBLIC_HOST}:${APP_PORT}"
   else
-    NEXTAUTH_URL="http://$(detect_public_host):3000"
+    NEXTAUTH_URL="http://$(detect_public_host):${APP_PORT}"
   fi
 fi
 
@@ -153,13 +154,14 @@ upsert_env "POSTGRES_USER" "$POSTGRES_USER"
 upsert_env "POSTGRES_PASSWORD" "$POSTGRES_PASSWORD"
 upsert_env "POSTGRES_PORT" "$POSTGRES_PORT"
 upsert_env "POSTGRES_DB" "$POSTGRES_DB"
+upsert_env "PORT" "$APP_PORT"
 upsert_env "DATABASE_URL" "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?schema=public"
 upsert_env "MIGRATE_POSTGRES_DB" "$MIGRATE_POSTGRES_DB"
 upsert_env "MIGRATE_DATABASE_URL" "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${MIGRATE_POSTGRES_DB}?schema=public"
 upsert_env "ZT_ADDR" "$ZT_ADDR"
 upsert_env "ZT_SECRET" "$ZT_SECRET"
 
-log "Configured $ENV_FILE with NEXTAUTH_URL=$NEXTAUTH_URL and ZT_ADDR=$ZT_ADDR"
+log "Configured $ENV_FILE with NEXTAUTH_URL=$NEXTAUTH_URL, PORT=$APP_PORT and ZT_ADDR=$ZT_ADDR"
 
 ensure_postgres
 
@@ -172,5 +174,5 @@ npx prisma migrate deploy
 log "Seeding database"
 npx prisma db seed
 
-log "Starting Next.js dev server"
-npm run dev
+log "Starting Next.js dev server on port $APP_PORT"
+PORT="$APP_PORT" npm run dev
